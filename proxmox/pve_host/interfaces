@@ -1,0 +1,32 @@
+# /etc/network/interfaces en el Host Proxmox VE
+# Configuración de puentes de red (Bridges)
+
+auto lo
+iface lo inet loopback
+
+iface eno1 inet manual
+# (Reemplazar 'eno1' o 'eth0' por el nombre de la tarjeta física de red de tu servidor Proxmox)
+
+# ------------------------------------------------------------------------------
+# BRIDGE 0: RED EXTERNA / WAN / GESTIÓN PROXMOX
+# ------------------------------------------------------------------------------
+# Conecta el servidor físico a la red del laboratorio / Wi-Fi / VPN / Router
+auto vmbr0
+iface vmbr0 inet static
+    address 10.30.248.10/24
+    gateway 10.30.248.1
+    bridge-ports eno1
+    bridge-stp off
+    bridge-fd 0
+
+# ------------------------------------------------------------------------------
+# BRIDGE 1: RED PRIVADA AISLADA (LAN DEL PROYECTO TAS-G13)
+# ------------------------------------------------------------------------------
+# Bridge puramente interno SIN tarjeta física (sin bridge-ports).
+# Funciona como un switch virtual privado para las 6 VMs.
+auto vmbr1
+iface vmbr1 inet manual
+    bridge-ports none
+    bridge-stp off
+    bridge-fd 0
+    # Nota: El gateway de este segmento será la VM 105 (10.33.199.105)

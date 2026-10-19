@@ -1,0 +1,17 @@
+# /etc/netplan/01-netcfg.yaml en VM 109 (DNS BIND9)
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    # Conectada a vmbr1 (LAN Interna)
+    eth0:
+      dhcp4: false
+      addresses:
+        - 10.33.199.109/29
+      routes:
+        - to: default
+          via: 10.33.199.105  # VM Gateway
+      nameservers:
+        addresses:
+          - 127.0.0.1
+          - 8.8.8.8

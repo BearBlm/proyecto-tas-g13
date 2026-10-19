@@ -1,0 +1,23 @@
+# /etc/netplan/01-netcfg.yaml en VM 105 (Gateway)
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    # Interfaz 1: Conectada a vmbr0 (WAN / Red Externa / Proxmox)
+    eth0:
+      dhcp4: false
+      addresses:
+        - 10.30.248.9/24  # O la IP asignada en tu red física / router
+      routes:
+        - to: default
+          via: 10.30.248.1  # Gateway del laboratorio / router WAN
+      nameservers:
+        addresses:
+          - 1.1.1.1
+          - 8.8.8.8
+
+    # Interfaz 2: Conectada a vmbr1 (LAN Privada del Clúster)
+    eth1:
+      dhcp4: false
+      addresses:
+        - 10.33.199.105/29  # IP Gateway del clúster interno
