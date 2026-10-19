@@ -1,0 +1,104 @@
+services:
+  # VM 250 (.109): Ubuntu 24.04 con Gateway HAProxy + DNS BIND9
+  vm250-gw-dns:
+    build: ./gw_dns
+    container_name: vm250-gw-dns
+    hostname: gw.tas13.local
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8404:8404"
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./gw_dns/haproxy.cfg:/etc/haproxy/haproxy.cfg:ro
+      - ./gw_dns/certs/nodosur.pem:/etc/haproxy/certs/nodosur.pem:ro
+      - ./gw_dns/named.conf:/etc/bind/named.conf:ro
+      - ./gw_dns/db.tas13.local:/etc/bind/db.tas13.local:ro
+      - ./gw_dns/db.nodosur.cl:/etc/bind/db.nodosur.cl:ro
+    dns:
+      - 10.33.199.109
+    networks:
+      red_tas13:
+        ipv4_address: 10.33.199.109
+    depends_on:
+      - vm206-web1
+      - vm248-web2
+
+  # VM 206 (.106): Ubuntu 24.04 con WordPress + Apache (Nodo Web 1)
+  vm206-web1:
+    build: ./web_wp
+    container_name: vm206-web1
+    hostname: web1.tas13.local
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: 10.33.199.108
+      WORDPRESS_DB_USER: wp_nodosur
+      WORDPRESS_DB_PASSWORD: NodoSurPassword2026!
+      WORDPRESS_DB_NAME: nodosur_db
+    volumes:
+      - nfs_compartido_wp:/var/www/html
+    dns:
+      - 10.33.199.109
+    networks:
+      red_tas13:
+        ipv4_address: 10.33.199.106
+    depends_on:
+      - vm258-db-backup
+
+  # VM 248 (.107): Ubuntu 24.04 con WordPress + Apache (Nodo Web 2)
+  vm248-web2:
+    build: ./web_wp
+    container_name: vm248-web2
+    hostname: web2.tas13.local
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: 10.33.199.108
+      WORDPRESS_DB_USER: wp_nodosur
+      WORDPRESS_DB_PASSWORD: NodoSurPassword2026!
+      WORDPRESS_DB_NAME: nodosur_db
+    volumes:
+      - nfs_compartido_wp:/var/www/html
+    dns:
+      - 10.33.199.109
+    networks:
+      red_tas13:
+        ipv4_address: 10.33.199.107
+    depends_on:
+      - vm258-db-backup
+
+  # VM 258 (.108): Ubuntu 24.04 con MariaDB Única + Backups + Lector NFS
+  vm258-db-backup:
+    build: ./db_backup
+    container_name: vm258-db-backup
+    hostname: db.tas13.local
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: RootSuperSeguro2026!
+      MARIADB_DATABASE: nodosur_db
+      MARIADB_USER: wp_nodosur
+      MARIADB_PASSWORD: NodoSurPassword2026!
+    volumes:
+      - db_persistencia:/var/lib/mysql
+      - ./db_backup:/backups
+      - nfs_compartido_wp:/mnt/nfs_wp_html:ro
+    dns:
+      - 10.33.199.109
+    networks:
+      red_tas13:
+        ipv4_address: 10.33.199.108
+
+volumes:
+  nfs_compartido_wp:
+    name: tas13_nfs_shared_wp
+  db_persistencia:
+    name: tas13_mariadb_data
+
+networks:
+  red_tas13:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.33.199.104/29
+          gateway: 10.33.199.105
