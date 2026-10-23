@@ -23,7 +23,7 @@ iface vmbr0 inet static
 # BRIDGE 1: RED PRIVADA AISLADA (LAN DEL PROYECTO TAS-G13)
 # ------------------------------------------------------------------------------
 # Bridge puramente interno SIN tarjeta física (sin bridge-ports).
-# Funciona como un switch virtual privado para las 6 VMs.
+# Funciona como un switch virtual privado para las 5 VMs del clúster.
 auto vmbr1
 iface vmbr1 inet manual
     bridge-ports none

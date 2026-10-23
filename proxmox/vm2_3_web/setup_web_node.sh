@@ -46,9 +46,9 @@ opcache.fast_shutdown=1
 opcache.enable_cli=1
 EOF
 
-echo "=== [4/6] Configurando Montaje NFS Compartido desde VM 110 (Storage/Backup) ==="
+echo "=== [4/6] Configurando Montaje NFS Compartido desde VM 109 (Storage/Backup) ==="
 mkdir -p /var/www/html
-STORAGE_IP="10.33.199.110"
+STORAGE_IP="10.33.199.109"
 
 # Asegurar que esté en fstab para montaje persistente en reinicios
 if ! grep -q "/srv/nfs/wordpress" /etc/fstab; then
@@ -56,7 +56,7 @@ if ! grep -q "/srv/nfs/wordpress" /etc/fstab; then
 fi
 
 # Intentar montaje
-mount -a || echo "[!] Advertencia: Si VM 110 aún no tiene NFS activo, el montaje se completará al iniciarla."
+mount -a || echo "[!] Advertencia: Si VM 109 aún no tiene NFS activo, el montaje se completará al iniciarla."
 
 echo "=== [5/6] Habilitando módulos requeridos de Apache ==="
 a2enmod rewrite

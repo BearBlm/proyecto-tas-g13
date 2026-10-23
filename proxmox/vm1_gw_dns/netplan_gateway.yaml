@@ -13,6 +13,7 @@ network:
           via: 10.30.248.1  # Gateway del laboratorio / router WAN
       nameservers:
         addresses:
+          - 127.0.0.1
           - 1.1.1.1
           - 8.8.8.8
 

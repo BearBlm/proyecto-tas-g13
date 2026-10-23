@@ -12,8 +12,8 @@ BRIDGE_WAN="vmbr0"
 BRIDGE_LAN="vmbr1"
 
 echo "=========================================================================="
-echo " [TAS-G13] DESPLIEGUE DE INFRAESTRUCTURA EN PROXMOX VE"
-echo " Segmento LAN: 10.33.199.104/29 (IPs útiles: 10.33.199.105 a 10.33.199.110)"
+echo " [TAS-G13] DESPLIEGUE DE INFRAESTRUCTURA EN PROXMOX VE (LÍMITE: 5 MÁQUINAS)"
+echo " Segmento LAN: 10.33.199.104/29 (IPs asignadas: 10.33.199.105 a 10.33.199.109)"
 echo "=========================================================================="
 
 # ------------------------------------------------------------------------------
@@ -36,17 +36,16 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 2. Especificaciones de las 6 Máquinas Virtuales
+# 2. Especificaciones de las 5 Máquinas Virtuales (Cupo Exacto por Grupo)
 # ------------------------------------------------------------------------------
-# ID 105: Gateway / HAProxy (Conecta a WAN vmbr0 y LAN vmbr1)
+# ID 105: Gateway / HAProxy + DNS BIND9 (Conecta a WAN vmbr0 y LAN vmbr1)
 # ID 106: Web 1 (Conecta solo a LAN vmbr1)
 # ID 107: Web 2 (Conecta solo a LAN vmbr1)
 # ID 108: MariaDB (Conecta solo a LAN vmbr1)
-# ID 109: DNS BIND9 (Conecta solo a LAN vmbr1)
-# ID 110: Backup & Storage (Conecta solo a LAN vmbr1)
+# ID 109: Backup & Storage NFS Seguro (Conecta solo a LAN vmbr1)
 
-echo "--> [VM 105] Creando Gateway / HAProxy..."
-qm create 105 --name gw-tas13 --memory 1024 --cores 2 --net0 virtio,bridge=${BRIDGE_WAN} --net1 virtio,bridge=${BRIDGE_LAN} || echo "VM 105 ya existe"
+echo "--> [VM 105] Creando Gateway / HAProxy + DNS BIND9..."
+qm create 105 --name gw-dns-tas13 --memory 1536 --cores 2 --net0 virtio,bridge=${BRIDGE_WAN} --net1 virtio,bridge=${BRIDGE_LAN} || echo "VM 105 ya existe"
 
 echo "--> [VM 106] Creando Nodo Web 1..."
 qm create 106 --name web1-tas13 --memory 2048 --cores 2 --net0 virtio,bridge=${BRIDGE_LAN} || echo "VM 106 ya existe"
@@ -57,13 +56,10 @@ qm create 107 --name web2-tas13 --memory 2048 --cores 2 --net0 virtio,bridge=${B
 echo "--> [VM 108] Creando MariaDB Server..."
 qm create 108 --name db-tas13 --memory 2048 --cores 2 --net0 virtio,bridge=${BRIDGE_LAN} || echo "VM 108 ya existe"
 
-echo "--> [VM 109] Creando Servidor DNS BIND9..."
-qm create 109 --name dns-tas13 --memory 1024 --cores 1 --net0 virtio,bridge=${BRIDGE_LAN} || echo "VM 109 ya existe"
-
-echo "--> [VM 110] Creando Servidor de Backup y Almacenamiento Seguro..."
-qm create 110 --name backup-storage-tas13 --memory 2048 --cores 2 --net0 virtio,bridge=${BRIDGE_LAN} || echo "VM 110 ya existe"
+echo "--> [VM 109] Creando Servidor de Backup y Almacenamiento Seguro NFS..."
+qm create 109 --name backup-storage-tas13 --memory 2048 --cores 2 --net0 virtio,bridge=${BRIDGE_LAN} || echo "VM 109 ya existe"
 
 echo "=========================================================================="
-echo " [OK] Las 6 Máquinas Virtuales han sido registradas en Proxmox VE."
+echo " [OK] Las 5 Máquinas Virtuales del Grupo 13 han sido registradas en Proxmox VE."
 echo " Proceda a asociar sus discos y aplicar las configuraciones de red."
 echo "=========================================================================="

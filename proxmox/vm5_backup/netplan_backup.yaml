@@ -1,4 +1,4 @@
-# /etc/netplan/01-netcfg.yaml en VM 110 (Servidor de Backup y Storage Seguro)
+# /etc/netplan/01-netcfg.yaml en VM 109 (Servidor de Backup y Storage Seguro)
 network:
   version: 2
   renderer: networkd
@@ -7,11 +7,11 @@ network:
     eth0:
       dhcp4: false
       addresses:
-        - 10.33.199.110/29
+        - 10.33.199.109/29
       routes:
         - to: default
           via: 10.33.199.105  # Gateway VM 105
       nameservers:
         addresses:
-          - 10.33.199.109    # DNS BIND9 VM 109
+          - 10.33.199.105    # DNS BIND9 VM 105 (Gateway + DNS)
           - 8.8.8.8

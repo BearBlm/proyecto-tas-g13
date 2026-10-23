@@ -1,7 +1,7 @@
 #!/bin/bash
 # ==============================================================================
 # SCRIPT DE RESPALDO AUTOMATIZADO Y SEGURO (PULL SEGURO + INTEGRIDAD CRIPTOGRÁFICA)
-# Ejecuta en: VM 110 (10.33.199.110)
+# Ejecuta en: VM 109 (10.33.199.109)
 # ==============================================================================
 
 set -e

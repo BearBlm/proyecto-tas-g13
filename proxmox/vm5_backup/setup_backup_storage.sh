@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# SCRIPT DE CONFIGURACIÓN AUTOMÁTICA - VM 110 (BACKUPS SEGUROS & STORAGE NFS)
+# SCRIPT DE CONFIGURACIÓN AUTOMÁTICA - VM 109 (BACKUPS SEGUROS & STORAGE NFS)
 # Sistema Operativo: Ubuntu Server 24.04 LTS (Proxmox VE)
 # ==============================================================================
 
@@ -24,7 +24,7 @@ mkdir -p /srv/nfs/wordpress
 chown -R www-data:www-data /srv/nfs/wordpress
 chmod -R 775 /srv/nfs/wordpress
 
-# Bóveda de respaldos (Acceso restringido estricto: solo root de VM 110)
+# Bóveda de respaldos (Acceso restringido estricto: solo root de VM 109)
 mkdir -p /var/backups/tas13/db
 mkdir -p /var/backups/tas13/files
 chmod 700 /var/backups/tas13
@@ -57,4 +57,4 @@ chmod +x /usr/local/bin/backup_seguro.sh /usr/local/bin/restore_seguro.sh
 # Cronjob diario a las 02:00 AM
 (crontab -l 2>/dev/null | grep -v "backup_seguro.sh" ; echo "0 2 * * * /usr/local/bin/backup_seguro.sh >> /var/log/backup_tas13.log 2>&1") | crontab -
 
-echo "¡VM 110 (Servidor de Backup Seguro & NFS) lista y protegida en 10.33.199.110!"
+echo "¡VM 109 (Servidor de Backup Seguro & NFS) lista y protegida en 10.33.199.109!"

@@ -20,6 +20,6 @@ gw-lan  IN      A       10.33.199.105
 web1    IN      A       10.33.199.106
 web2    IN      A       10.33.199.107
 db      IN      A       10.33.199.108
-dns     IN      A       10.33.199.109
-backup  IN      A       10.33.199.110
-storage IN      A       10.33.199.110
+dns     IN      A       10.33.199.105
+backup  IN      A       10.33.199.109
+storage IN      A       10.33.199.109
