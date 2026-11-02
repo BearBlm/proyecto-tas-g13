@@ -12,11 +12,11 @@
 El presente proyecto implementa una infraestructura real distribuida de servicios web de alta disponibilidad, balanceada, endurecida en seguridad (*hardened*) y tolerante a fallos sobre el hipervisor **Proxmox VE** de la universidad, integrando orquestación mediante **Docker y Docker Compose v2** en cada nodo de servicio.
 
 La solución interconecta las máquinas virtuales del **Grupo 13** en el segmento de red privado aislado **`10.33.199.104/29`** (con salida WAN institucional a través de **`10.33.195.195`**), integrando:
-1. **Pasarela de Entrada, Router NAT y Balanceo L7 (`10.33.199.109` / WAN `10.33.195.195`):** HAProxy 2.8 multihilo (`nbthread 2`) con terminación SSL/TLS (`HTTP/2` + `HTTP/1.1`), micro-caché en memoria RAM de 64 MB (`tune.bufsize 262144`), mitigación activa anti-DoS (`stick-table`), bloqueo de vectores como `/xmlrpc.php` y enrutamiento NAT Masquerade persistente (`iptables-persistent`).
+1. **Pasarela de Entrada, Router NAT y Balanceo L7 (`10.33.199.109` / WAN `10.33.195.195`):** HAProxy 2.8 multihilo (`nbthread 2`, `maxconn 10000`, backend `maxconn 1000` por nodo web) con terminación SSL/TLS (`HTTP/2` + `HTTP/1.1`), micro-caché en memoria RAM de 64 MB (`tune.bufsize 262144`), mitigación activa anti-DoS (`stick-table`), bloqueo de vectores como `/xmlrpc.php` y enrutamiento NAT Masquerade persistente (`iptables-persistent`).
 2. **Servidor DNS Autoritativo y Recursivo:** BIND9 publicando en el puerto 53 (UDP/TCP) tanto en la interfaz WAN (`10.33.195.195`) como en la interfaz LAN (`10.33.199.109`), resolviendo las zonas `nodosur.cl` y `tas13.local`.
-3. **Clúster Web Redundante en Docker (`10.33.199.106` y `10.33.199.107`):** Dos máquinas virtuales independientes ejecutando los contenedores `vm206-web1` y `vm248-web2` (Apache 2.4 + PHP 8.3 con `OPcache` de 256 MB y `output_buffering` de 256 KB + WordPress).
+3. **Clúster Web Redundante en Docker (`10.33.199.106` y `10.33.199.107`):** Dos máquinas virtuales independientes ejecutando los contenedores `vm206-web1` y `vm248-web2` (Apache 2.4 con MPM Prefork escalado a `ServerLimit 1200` y `MaxRequestWorkers 1200`, `KeepAlive On`, PHP 8.3 con `OPcache` de 256 MB y `output_buffering` de 256 KB + WordPress) preparados para sostener 1.000+ sesiones concurrentes activas sin cuellos de botella.
 4. **Almacenamiento Compartido NFS Dedicado en 5ta VM (`10.33.199.110`):** Servidor `nfs-kernel-server` exportando `/srv/nfs/wordpress` optimizado con `async,no_subtree_check,no_root_squash`, montado en ambos nodos web para garantizar persistencia y sincronización total.
-5. **Capa de Persistencia MariaDB en Docker (`10.33.199.108`):** Contenedor `vm258-db-backup` con MariaDB 10.11 afinado (`max_connections=1000`, `innodb_buffer_pool_size=512M`, `query_cache_size=64M`).
+5. **Capa de Persistencia MariaDB en Docker (`10.33.199.108`):** Contenedor `vm258-db-backup` con MariaDB 10.11 afinado para alta concurrencia (`max_connections=1200`, `max_user_connections=1100`, `open_files_limit=65535`, `innodb_buffer_pool_size=512M`, `query_cache_size=64M`).
 6. **Bóveda Aislada de Respaldos Pull con Integridad SHA-256 (`10.33.199.110`):** Sistema automatizado (`backup_seguro.sh` y `restore_seguro.sh`) que extrae copias en frío de la base de datos y archivos mediante credenciales de solo lectura, empaqueta, genera manifiestos criptográficos SHA-256 y purga con retención de 7 días.
 
 En las pruebas de estrés ejecutadas sobre el clúster optimizado:
@@ -137,14 +137,14 @@ La arquitectura donde **una única máquina virtual posee salida WAN y enruta a 
 
 ### 3.3. Clúster Web en Docker (`vm206-web1` en `.106` y `vm248-web2` en `.107`)
 * **Contenedores basados en Ubuntu 24.04 (`tas13-web-wp:latest`):**
-  * Ejecutan Apache 2.4 (`mpm_prefork` afinado a `MaxRequestWorkers 200`, `KeepAlive On`) y PHP 8.3.
-  * **OPcache optimizado (`/etc/php/8.3/apache2/conf.d/99-opcache-tas.ini`):** `opcache.memory_consumption=256`, `opcache.max_accelerated_files=20000`, `opcache.revalidate_freq=60` (evita llamadas `stat()` repetitivas por red hacia el servidor NFS).
+  * Ejecutan Apache 2.4 (`mpm_prefork` afinado para 1.000+ sesiones con `ServerLimit 1200`, `MaxRequestWorkers 1200`, `StartServers 25`, `MaxConnectionsPerChild 10000`, `KeepAlive On`, `MaxKeepAliveRequests 1000`) y PHP 8.3.
+  * **OPcache optimizado (`/etc/php/8.3/apache2/conf.d/99-opcache-tas.ini`):** `opcache.memory_consumption=256`, `opcache.max_accelerated_files=20000`, `opcache.revalidate_freq=2` (evita llamadas `stat()` repetitivas por red hacia el servidor NFS).
 * **Montaje NFS Compartido (`/etc/fstab`):**
   * Ambos nodos montan `10.33.199.110:/srv/nfs/wordpress` en `/srv/nfs/wordpress` (con opciones `rw,async,noatime,nodiratime,actimeo=60,hard,_netdev`) y lo inyectan como volumen en `/var/www/html` dentro de cada contenedor.
 
 ### 3.4. Capa de Persistencia MariaDB 10.11 (`vm258-db-backup` en `.108`)
 * **Afinamiento de MariaDB (`/etc/mysql/mariadb.conf.d/99-tas-tuning.cnf`):**
-  * `max_connections = 1000`, `innodb_buffer_pool_size = 512M`, `innodb_flush_log_at_trx_commit = 2`, `skip-name-resolve`, `query_cache_type = 1`, `query_cache_size = 64M`.
+  * `max_connections = 1200`, `max_user_connections = 1100`, `open_files_limit = 65535`, `table_open_cache = 4096`, `innodb_buffer_pool_size = 512M`, `innodb_flush_log_at_trx_commit = 2`, `skip-name-resolve`, `query_cache_type = 1`, `query_cache_size = 64M`.
   * La base de datos opera de manera aislada y dedicada en la VM 4 (`10.33.199.108`), habiendo delegado la carga de almacenamiento masivo y bóveda a la 5ta VM.
 
 ### 3.5. Almacenamiento Compartido NFS y Bóveda Segura de Respaldos Pull (`10.33.199.110`)
@@ -593,6 +593,14 @@ Siguiendo la metodología estricta del curso **"Observar $\rightarrow$ Probar $\
   ```
   *(Al repetir la solicitud, conmuta hacia `x-nodo-backend: vm248-web2` o sirve desde caché RAM `x-estado-cache: HIT`).*
 
+---
 
+## 11. Anexo: Monitoreo Centralizado de la Infraestructura con Zabbix 7.0 LTS
 
+Para ampliar la observabilidad de la plataforma más allá del panel de estadísticas integrado de HAProxy (`:8404/stats`), se ha documentado e integrado la arquitectura completa de monitoreo distribuido mediante **Zabbix 7.0 LTS**.
 
+* **Documento Técnico Completo:** Consulte [GUIA_ZABBIX_MONITOREO.md](file:///c:/Users/axelc/OneDrive/Documentos/projectç/proyecto-tas-g13/GUIA_ZABBIX_MONITOREO.md) para acceder al manual de despliegue paso a paso, configuración de `Zabbix Agent 2`, plantillas recomendadas por nodo y manual de operación web.
+* **Resumen de Integración:**
+  * **Nodo Servidor:** Despliegue en la IP de reserva `10.33.199.110` (o coinquilino en VM de almacenamiento) con Zabbix Server, Apache2 Web y MariaDB dedicado.
+  * **Acceso Externo:** Enrutamiento a través del Gateway HAProxy mediante el subdominio `https://zabbix.nodosur.cl/zabbix`.
+  * **Agentes en Nodos:** Despliegue de `zabbix-agent2` en VM 105 (Gateway/DNS), VM 106 & 107 (Nodos Web), VM 108 (MariaDB) y VM 109 (Storage & Backup).

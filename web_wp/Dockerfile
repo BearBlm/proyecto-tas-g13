@@ -30,8 +30,13 @@ RUN wget -q https://es.wordpress.org/latest-es_ES.tar.gz -O /tmp/wordpress.tar.g
     && rm /tmp/wordpress.tar.gz \
     && a2enmod rewrite headers
 
-# Activamos OPcache en PHP 8.3 para soportar alto tráfico en pruebas de estrés
-RUN echo "opcache.enable=1\nopcache.memory_consumption=128\nopcache.max_accelerated_files=10000\nopcache.revalidate_freq=2" > /etc/php/8.3/apache2/conf.d/99-opcache-tas.ini
+# Activamos OPcache y afinamiento de PHP 8.3 para soportar 1000+ sesiones concurrentes
+RUN printf "opcache.enable=1\nopcache.memory_consumption=256\nopcache.interned_strings_buffer=16\nopcache.max_accelerated_files=20000\nopcache.revalidate_freq=2\nopcache.fast_shutdown=1\nopcache.enable_cli=1\noutput_buffering=262144\nmemory_limit=256M\nmax_execution_time=60\n" > /etc/php/8.3/apache2/conf.d/99-opcache-tas.ini
+
+# Configuramos Apache MPM Prefork y KeepAlive para soportar 1000+ sesiones concurrentes
+RUN printf "<IfModule mpm_prefork_module>\n    ServerLimit           1200\n    StartServers          25\n    MinSpareServers       25\n    MaxSpareServers       100\n    MaxRequestWorkers     1200\n    MaxConnectionsPerChild 10000\n</IfModule>\n" > /etc/apache2/mods-available/mpm_prefork.conf \
+    && printf "KeepAlive On\nMaxKeepAliveRequests 1000\nKeepAliveTimeout 5\nTimeout 60\n" > /etc/apache2/conf-available/tas-tuning.conf \
+    && a2enconf tas-tuning
 
 COPY entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh

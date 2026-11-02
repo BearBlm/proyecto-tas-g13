@@ -19,6 +19,10 @@ services:
       - ./gw_dns/db.nodosur.cl:/etc/bind/db.nodosur.cl:ro
     dns:
       - 10.33.199.109
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     networks:
       red_tas13:
         ipv4_address: 10.33.199.109
@@ -41,6 +45,10 @@ services:
       - nfs_compartido_wp:/var/www/html
     dns:
       - 10.33.199.109
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     networks:
       red_tas13:
         ipv4_address: 10.33.199.106
@@ -62,6 +70,10 @@ services:
       - nfs_compartido_wp:/var/www/html
     dns:
       - 10.33.199.109
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     networks:
       red_tas13:
         ipv4_address: 10.33.199.107
@@ -85,6 +97,10 @@ services:
       - nfs_compartido_wp:/mnt/nfs_wp_html:ro
     dns:
       - 10.33.199.109
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     networks:
       red_tas13:
         ipv4_address: 10.33.199.108

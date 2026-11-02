@@ -34,17 +34,50 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
     dnsutils
 
-echo "=== [3/6] Optimizando OPcache para alta concurrencia ==="
+echo "=== [3/6] Optimizando Apache MPM y OPcache para soportar 1000+ sesiones ==="
 cat << 'EOF' > /etc/php/8.3/apache2/conf.d/99-opcache-tas.ini
 [opcache]
 opcache.enable=1
-opcache.memory_consumption=128
+opcache.memory_consumption=256
 opcache.interned_strings_buffer=16
-opcache.max_accelerated_files=10000
+opcache.max_accelerated_files=20000
 opcache.revalidate_freq=2
 opcache.fast_shutdown=1
 opcache.enable_cli=1
+output_buffering=262144
+memory_limit=256M
+max_execution_time=60
 EOF
+
+# Afinamiento de Apache MPM Prefork para 1000+ sesiones simultáneas
+cat << 'EOF' > /etc/apache2/mods-available/mpm_prefork.conf
+<IfModule mpm_prefork_module>
+    ServerLimit           1200
+    StartServers          25
+    MinSpareServers       25
+    MaxSpareServers       100
+    MaxRequestWorkers     1200
+    MaxConnectionsPerChild 10000
+</IfModule>
+EOF
+
+# Afinamiento de KeepAlive y timeouts de Apache
+cat << 'EOF' > /etc/apache2/conf-available/tas-tuning.conf
+KeepAlive On
+MaxKeepAliveRequests 1000
+KeepAliveTimeout 5
+Timeout 60
+EOF
+a2enconf tas-tuning
+
+# Parámetros del kernel del SO para soportar 1000+ conexiones concurrentes y sockets
+cat << 'EOF' > /etc/sysctl.d/99-tas-concurrency.conf
+net.core.somaxconn = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+net.ipv4.ip_local_port_range = 1024 65535
+fs.file-max = 2097152
+EOF
+sysctl -p /etc/sysctl.d/99-tas-concurrency.conf || true
 
 echo "=== [4/6] Configurando Montaje NFS Compartido desde VM 109 (Storage/Backup) ==="
 mkdir -p /var/www/html

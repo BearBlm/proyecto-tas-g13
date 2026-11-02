@@ -14,15 +14,26 @@ echo "=== [2/5] Configurando MariaDB para escuchar en la red interna LAN (10.33.
 # Permitir conexiones desde la LAN
 sed -i 's/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/' /etc/mysql/mariadb.conf.d/50-server.cnf
 
-# Afinamiento de alto rendimiento y concurrencia
+# Afinamiento de alto rendimiento y concurrencia (1000+ sesiones simultáneas)
 cat << 'EOF' > /etc/mysql/mariadb.conf.d/99-tas-tuning.cnf
 [mysqld]
-max_connections = 1000
+max_connections = 1200
+max_user_connections = 1100
+open_files_limit = 65535
+table_open_cache = 4096
 innodb_buffer_pool_size = 512M
 skip-name-resolve
-query_cache_size = 32M
+query_cache_size = 64M
 query_cache_type = 1
 EOF
+
+# Afinamiento del kernel para altas conexiones y descriptores de archivo
+cat << 'EOF' > /etc/sysctl.d/99-tas-concurrency.conf
+net.core.somaxconn = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+fs.file-max = 2097152
+EOF
+sysctl -p /etc/sysctl.d/99-tas-concurrency.conf || true
 
 systemctl enable mariadb
 systemctl restart mariadb

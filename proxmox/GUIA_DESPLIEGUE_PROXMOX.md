@@ -140,7 +140,7 @@ Esta máquina cumple dos roles clave manteniendo la alta disponibilidad:
    sudo chmod +x setup_mariadb.sh
    sudo ./setup_mariadb.sh
    ```
-   * Aplica afinamiento de alto rendimiento (`max_connections = 1000`, `innodb_buffer_pool_size = 512M`).
+   * Aplica afinamiento de alto rendimiento (`max_connections = 1200`, `innodb_buffer_pool_size = 512M`) para soportar 1.000+ sesiones concurrentes.
    * Crea base de datos `nodosur_db`.
    * Crea usuario de WordPress restringido a `'10.33.199.%'`.
    * Crea usuario dedicado para la máquina de backups (`backup_agent@10.33.199.109`).

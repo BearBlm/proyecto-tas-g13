@@ -17,10 +17,17 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y \
     curl \
     net-tools
 
-echo "=== [2/7] Habilitando reenvío de paquetes IPv4 (IP Forwarding) ==="
+echo "=== [2/7] Habilitando reenvío de paquetes IPv4 y afinamiento del kernel (1000+ sesiones) ==="
 sysctl -w net.ipv4.ip_forward=1
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
-echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/99-ip-forward.conf
+cat << 'EOF' > /etc/sysctl.d/99-tas-gateway.conf
+net.ipv4.ip_forward = 1
+net.core.somaxconn = 65535
+net.ipv4.tcp_max_syn_backlog = 65535
+net.ipv4.ip_local_port_range = 1024 65535
+fs.file-max = 2097152
+EOF
+sysctl -p /etc/sysctl.d/99-tas-gateway.conf
 
 echo "=== [3/7] Configurando Servidor DNS BIND9 Local ==="
 cp ./named.conf /etc/bind/named.conf
