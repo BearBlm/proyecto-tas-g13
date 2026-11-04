@@ -14,7 +14,7 @@ echo "======================================================================"
 echo " [1/6] Preparando repositorios oficiales para Zabbix 7.0 y Grafana OSS"
 echo "======================================================================"
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y \
+DEBIAN_FRONTEND=noninteractive locale-gen en_US.UTF-8 es_ES.UTF-8 && update-locale LANG=en_US.UTF-8 && apt-get install -y \
     wget \
     curl \
     gnupg \
@@ -43,7 +43,7 @@ apt-get update
 echo "======================================================================"
 echo " [2/6] Instalando Zabbix Server, Frontend Apache y Grafana OSS"
 echo "======================================================================"
-DEBIAN_FRONTEND=noninteractive apt-get install -y \
+DEBIAN_FRONTEND=noninteractive locale-gen en_US.UTF-8 es_ES.UTF-8 && update-locale LANG=en_US.UTF-8 && apt-get install -y \
     zabbix-server-mysql \
     zabbix-frontend-php \
     zabbix-apache-conf \
