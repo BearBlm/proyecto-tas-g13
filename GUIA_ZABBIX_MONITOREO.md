@@ -1,264 +1,248 @@
 # ==============================================================================
-# GUÍA TÉCNICA Y DOCUMENTACIÓN DE IMPLEMENTACIÓN DE ZABBIX 7.0 LTS
+# GUÍA TÉCNICA Y DOCUMENTACIÓN DE IMPLEMENTACIÓN: ZABBIX 7.0 LTS + GRAFANA OSS
 # PROYECTO TAS-G13: INFRAESTRUCTURA DE ALTA DISPONIBILIDAD (PROXMOX VE)
+# ARQUITECTURA OPTIMIZADA: TOPE ESTRICTO DE 5 MÁQUINAS VIRTUALES
 # ==============================================================================
 
-## 1. Introducción y Arquitectura de Monitoreo
+## 1. Introducción y Justificación de Arquitectura (Tope de 5 VMs)
 
-**Zabbix** es una solución de grado empresarial para monitorización distribuida en tiempo real de redes, servidores, máquinas virtuales y servicios de aplicaciones.
+Para cumplir con las exigencias de la **Entrega 4: Observabilidad y continuidad operacional** respetando la restricción estricta de **máximo 5 Máquinas Virtuales** en Proxmox VE, se diseñó una arquitectura consolidada, segura y de alto rendimiento.
 
-### Componentes Clave
-1. **Zabbix Server:** Demonio central encargado de consultar y recibir métricas, evaluar condiciones de alarma (*Triggers*), gestionar la base de datos histórica y generar notificaciones.
-2. **Base de Datos (MariaDB):** Almacén relacional donde se guardan las configuraciones, plantillas, histórico granular (*History*) y tendencias agrupadas (*Trends*).
-3. **Zabbix Web Frontend:** Panel gráfico en PHP/Apache para visualización de métricas, diseño de *Dashboards*, mapas de topología y control de inventario.
-4. **Zabbix Agent 2:** Agente ligero de alto rendimiento escrito en Go, instalado en cada nodo cliente para extraer telemetría del sistema operativo y métricas nativas de servicios (MariaDB, Apache, HAProxy, BIND9, etc.).
+### ¿Por qué integrar Zabbix con Grafana?
+1. **Zabbix 7.0 LTS como Motor de Telemetría y Alertas:**
+   - Supervisión profunda del sistema operativo y servicios mediante **Zabbix Agent 2** (escrito en Go, bajo consumo de CPU/RAM).
+   - Motor de evaluación de eventos y *Triggers* con umbrales configurables (Disaster, High, Warning).
+   - Base de datos histórica optimizada con políticas de retención (*History* y *Trends*).
+2. **Grafana OSS como Capa de Visualización Ejecutiva y Operativa:**
+   - Paneles dinámicos y tableros interactivos para la defensa ante el docente.
+   - Conexión nativa con Zabbix mediante el plugin oficial `alexanderzobnin-zabbix-app` a través de la API JSON-RPC de Zabbix (`/zabbix/api_jsonrpc.php`).
+   - Monitoreo en tiempo real de disponibilidad, tiempos de respuesta, saturación de CPU/RAM y estado del clúster Web y BD.
+
+---
+
+## 2. Topología y Ubicación en la Red (`10.33.199.104/29`)
+
+Bajo el direccionamiento de la subred privada `/29` (máscara `255.255.255.248`), las 5 VMs quedan distribuidas de la siguiente forma:
+
+| VM ID | Hostname | IP Privada LAN | Rol Principal | Servicios Activos | Rol en Observabilidad |
+| :---: | :--- | :--- | :--- | :--- | :--- |
+| **VM 105** | `gw.tas13.local`<br>`ns1.nodosur.cl` | `10.33.199.105` (LAN)<br>WAN DHCP/IP PVE | Gateway, Proxy Inverso L7, Router NAT, DNS BIND9 | HAProxy 2.8, BIND9, iptables NAT | **Zabbix Agent 2** + Reverse Proxy SSL para `zabbix.nodosur.cl` y `grafana.nodosur.cl`. |
+| **VM 106** | `web1.tas13.local` | `10.33.199.106` | Nodo Web 1 | Apache 2.4, PHP 8.3, WordPress, Cliente NFS | **Zabbix Agent 2** (Métricas Apache, HTTP latency, NFS mount). |
+| **VM 107** | `web2.tas13.local` | `10.33.199.107` | Nodo Web 2 | Apache 2.4, PHP 8.3, WordPress, Cliente NFS | **Zabbix Agent 2** (Métricas Apache, balanceo, NFS mount). |
+| **VM 108** | `db.tas13.local` | `10.33.199.108` | Servidor de Base de Datos Dedicado | MariaDB 10.11 (`nodosur_db`) | **Zabbix Agent 2** con plugin nativo MySQL (Queries/sec, Buffer Pool, Slow Queries). |
+| **VM 109** | `backup.tas13.local`<br>`storage.tas13.local` | `10.33.199.109` | **Nodo Central de Gestión, Respaldos y Observabilidad** | NFS Server (`/srv/nfs/wordpress`), Bóveda de Backups (`/var/backups/tas13`) | **Zabbix Server 7.0 + MariaDB Local + Zabbix Web UI + Grafana OSS + Zabbix Agent 2**. |
 
 ```text
-                                [ ADMINISTRADOR / BROWSER ]
-                                             │
-                                             ▼ (HTTPS / HTTP)
-                       ┌───────────────────────────────────────────┐
-                       │   VM 105: GATEWAY & REVERSE PROXY         │
-                       │   - HAProxy (zabbix.nodosur.cl)           │
-                       │   - DNS BIND9 (Resolución local)          │
-                       └─────────────────────┬─────────────────────┘
-                                             │ Red LAN (vmbr1: 10.33.199.104/29)
-                                             ▼
-                       ┌───────────────────────────────────────────┐
-                       │   VM 110: SERVIDOR ZABBIX DEDICADO        │
-                       │   - IP: 10.33.199.110 (IP Libre Subred)   │
-                       │   - Zabbix Server 7.0 LTS (Puerto 10051)  │
-                       │   - Zabbix Web UI (Apache2)               │
-                       │   - MariaDB Local para Zabbix             │
-                       └─────────────┬───────────────┬─────────────┘
-                                     │               │ (Sondeo / Agente Activo)
-         ┌───────────────────────────┼───────────────┴───────────────────────────┐
-         ▼                           ▼                                           ▼
-   ┌───────────┐               ┌───────────┐                               ┌───────────┐
-   │  VM 105   │               │ VM 106/107│                               │ VM 108/109│
-   │  GW / DNS │               │ Web 1 & 2 │                               │ DB / BKP  │
-   │  Agent 2  │               │  Agent 2  │                               │  Agent 2  │
-   └───────────┘               └───────────┘                               └───────────┘
+                                [ CLIENTE / BROWSER / DOCENTE ]
+                                               │
+                                               ▼ (HTTPS :443 / DNS :53)
+                      ┌────────────────────────────────────────────────────────┐
+                      │    VM 105: GATEWAY & REVERSE PROXY (HAProxy + BIND9)   │
+                      │    - https://nodosur.cl        ──► Nodos Web (106/107) │
+                      │    - https://zabbix.nodosur.cl  ──► VM 109 (:80/zabbix) │
+                      │    - https://grafana.nodosur.cl ──► VM 109 (:3000)     │
+                      │    - Zabbix Agent 2 (Supervisa Gateway y HAProxy)      │
+                      └────────────────────────┬───────────────────────────────┘
+                                               │ LAN vmbr1 (10.33.199.104/29)
+         ┌─────────────────────────────────────┼─────────────────────────────────────┐
+         ▼                                     ▼                                     ▼
+ ┌───────────────┐                     ┌───────────────┐                     ┌───────────────┐
+ │  VM 106 & 107 │                     │    VM 108     │                     │    VM 109     │
+ │  Nodos Web    │                     │ MariaDB Prod  │                     │ Gestión/Obs.  │
+ │  Apache + PHP │                     │ BD WordPress  │                     │ NFS + Backups │
+ │  Agent 2      │                     │ Agent 2+MySQL │                     │ Zabbix+Grafana│
+ └───────┬───────┘                     └───────┬───────┘                     └───────┬───────┘
+         │ Telemetría (:10050)                 │ Telemetría (:10050)                 │
+         └─────────────────────────────────────┴─────────────────────────────────────┘
+                                               ▲
+                                  Sondeo Zabbix Server (:10051)
 ```
+
+### Justificación de Seguridad y Rendimiento de Instalar en VM 109:
+1. **Aislamiento de la Base de Datos de Producción (VM 108):**
+   - Zabbix Server almacena miles de métricas por minuto. Al alojar su MariaDB local dentro de la VM 109 en `127.0.0.1`, la base de datos de producción de WordPress (VM 108) queda libre de contención de I/O de disco, locking o memoria.
+   - **Alta Resiliencia:** Si la base de datos de producción (VM 108) colapsa, el sistema de monitoreo en VM 109 sigue 100% operativo y envía la alerta inmediatamente.
+2. **Aprovechamiento de la VM de Gestión:**
+   - La VM 109 se encarga de almacenamiento NFS y respaldos automáticos fuera de horas pico. Tiene baja demanda de CPU/RAM la mayor parte del tiempo y cuenta con capacidad de almacenamiento sobredimensionada, siendo el host ideal para consolidar Zabbix y Grafana.
+3. **Cero Latencia entre Grafana y Zabbix:**
+   - Grafana y Zabbix Server conviven en la misma máquina (`10.33.199.109`), comunicándose por `localhost` sin saturar la red LAN privada ni exponer la API de Zabbix al exterior.
 
 ---
 
-## 2. Ubicación en la Red del Proyecto
+## 3. Despliegue de Observabilidad en VM 109 (Zabbix Server + Grafana OSS)
 
-En el direccionamiento de red del proyecto (`10.33.199.104/29` con máscara `255.255.255.248`):
+En la **VM 109**, se ejecuta el script de aprovisionamiento automatizado:
 
-| Nodo | IP Asignada | Rol en el Proyecto | Integración Zabbix |
-| :--- | :--- | :--- | :--- |
-| **VM 105** | `10.33.199.105` | Gateway, DNS BIND9, HAProxy | Zabbix Agent 2 + Reverse Proxy Frontend |
-| **VM 106** | `10.33.199.106` | Nodo Web 1 (Apache + WP) | Zabbix Agent 2 |
-| **VM 107** | `10.33.199.107` | Nodo Web 2 (Apache + WP) | Zabbix Agent 2 |
-| **VM 108** | `10.33.199.108` | Servidor MariaDB Base de Datos | Zabbix Agent 2 (plugin MySQL) |
-| **VM 109** | `10.33.199.109` | Storage NFS Central y Respaldos | Zabbix Agent 2 (monitoreo discos/cron) |
-| **VM 110** | `10.33.199.110` | **IP Libre / Disponible de la subred** | **Servidor Zabbix Server + Web + BD** |
+```bash
+# Dar permisos de ejecución y correr el script instalador
+chmod +x /ruta/a/proyecto-tas-g13/proxmox/vm5_backup/setup_zabbix_grafana.sh
+sudo /ruta/a/proyecto-tas-g13/proxmox/vm5_backup/setup_zabbix_grafana.sh
+```
 
-> [!NOTE]
-> **Alternativa sin crear nueva VM:** Si existe una restricción académica estricta que limite la infraestructura a exactamente 5 máquinas virtuales, Zabbix Server y su Web pueden instalarse directamente dentro de la **VM 109 (Backup & Storage)** o en un contenedor ligero LXC en el hipervisor Proxmox.
+### Qué realiza este script automáticamente:
+1. Agrega repositorios oficiales de **Zabbix 7.0 LTS** y **Grafana OSS**.
+2. Instala los paquetes de Zabbix Server, Frontend Web PHP sobre Apache, MariaDB Server y Grafana.
+3. Crea la base de datos `zabbix` con codificación `utf8mb4` e importa el esquema relacional inicial.
+4. Instala el plugin oficial de Zabbix para Grafana:
+   ```bash
+   grafana-cli plugins install alexanderzobnin-zabbix-app
+   ```
+5. Configura `grafana.ini` con el dominio `grafana.nodosur.cl` y subrutas seguras.
+6. Instala y enlaza el **Zabbix Agent 2** local de la VM 109.
+7. Habilita los servicios `mariadb`, `zabbix-server`, `zabbix-agent2`, `apache2` y `grafana-server` en systemd.
 
 ---
 
-## 3. Despliegue del Servidor Zabbix (Paso a Paso)
+## 4. Despliegue de Zabbix Agent 2 en Todas las VMs (VM 105 a VM 109)
 
-Ejecutar estos comandos en la máquina designada como servidor de monitoreo (`10.33.199.110`):
+En cada una de las 5 máquinas virtuales del proyecto, ejecutar el script unificado:
 
-### Paso 3.1: Repositorio Oficial e Instalación de Paquetes
 ```bash
-# Descargar repositorio oficial de Zabbix 7.0 LTS para Ubuntu 24.04 LTS
-wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu24.04_all.deb
-sudo dpkg -i zabbix-release_latest_7.0+ubuntu24.04_all.deb
-sudo apt update
-
-# Instalar Zabbix Server, Frontend Web en Apache y motor MariaDB
-sudo apt install -y mariadb-server zabbix-server-mysql zabbix-frontend-php zabbix-apache-conf zabbix-sql-scripts zabbix-agent2
+chmod +x /ruta/a/proyecto-tas-g13/proxmox/setup_zabbix_agent.sh
+sudo /ruta/a/proyecto-tas-g13/proxmox/setup_zabbix_agent.sh
 ```
 
-### Paso 3.2: Creación de la Base de Datos
+El script detecta el `hostname` local de la máquina y apunta el agente al servidor Zabbix en `10.33.199.109`.
+
+### Configuración Específica para VM 108 (Monitoreo de MariaDB):
+En la **VM 108**, para permitir que Zabbix Agent 2 consulte las estadísticas de MariaDB sin comprometer la seguridad:
 ```bash
-# Crear base de datos y usuario de Zabbix con codificación utf8mb4
-sudo mysql -e "create database zabbix character set utf8mb4 collate utf8mb4_bin;"
-sudo mysql -e "create user 'zabbix'@'localhost' identified by 'ZabbixPass2026!';"
-sudo mysql -e "grant all privileges on zabbix.* to 'zabbix'@'localhost';"
-sudo mysql -e "set global log_bin_trust_function_creators = 1;"
-
-# Importar el esquema y datos iniciales de Zabbix (puede tomar ~1 minuto)
-zcat /usr/share/zabbix-sql-scripts/mysql/server.sql.gz | sudo mysql -u zabbix -p'ZabbixPass2026!' zabbix
-
-# Reestablecer variable tras la importación
-sudo mysql -e "set global log_bin_trust_function_creators = 0;"
+sudo mysql -e "CREATE USER 'zbx_monitor'@'localhost' IDENTIFIED BY 'ZbxPassDb2026!';"
+sudo mysql -e "GRANT REPLICATION CLIENT, PROCESS, SHOW DATABASES, SHOW VIEW ON *.* TO 'zbx_monitor'@'localhost';"
 ```
-
-### Paso 3.3: Configuración del Demonio Zabbix Server
-Editar `/etc/zabbix/zabbix_server.conf`:
-```bash
-sudo sed -i 's/# DBPassword=/DBPassword=ZabbixPass2026!/' /etc/zabbix/zabbix_server.conf
+Crear `/etc/zabbix/zabbix_agent2.d/plugins.d/mysql.conf`:
+```ini
+Plugins.Mysql.Sessions.Local.Uri=tcp://localhost:3306
+Plugins.Mysql.Sessions.Local.User=zbx_monitor
+Plugins.Mysql.Sessions.Local.Password=ZbxPassDb2026!
 ```
-
-### Paso 3.4: Iniciar y Habilitar Servicios
-```bash
-sudo systemctl restart zabbix-server zabbix-agent2 apache2
-sudo systemctl enable zabbix-server zabbix-agent2 apache2
-```
+Reiniciar el agente: `sudo systemctl restart zabbix-agent2`.
 
 ---
 
-## 4. Integración con Gateway HAProxy y DNS (VM 105)
+## 5. Configuración del Gateway HAProxy y DNS BIND9 (VM 105)
 
-Para acceder al panel a través del dominio del proyecto sin exponer puertos no estándar:
-
-### 4.1. Registro en DNS BIND9
-En la **VM 105**, editar los archivos de zona `/etc/bind/db.nodosur.cl` y `/etc/bind/db.tas13.local` agregando:
+### 5.1. Zonas DNS en BIND9 (`/etc/bind/db.nodosur.cl` y `db.tas13.local`)
+Asegurar que los subdominios apunten a la IP del Gateway para resolución externa y local:
 ```bind
-zabbix          IN      A       10.33.199.105
+zabbix          IN      A       10.30.248.9
+grafana         IN      A       10.30.248.9
 ```
-Recargar BIND9: `sudo systemctl reload bind9`.
+Recargar DNS: `sudo systemctl reload named`.
 
-### 4.2. Enrutamiento en HAProxy
-En `/etc/haproxy/haproxy.cfg`, añadir dentro del frontend HTTPS y backend:
+### 5.2. Enrutamiento L7 en `/etc/haproxy/haproxy.cfg`
+HAProxy analiza el encabezado `Host:` y la ruta de la petición:
 ```haproxy
-frontend https_front
-    # ... configuraciones existentes ...
-    acl host_zabbix hdr(host) -i zabbix.nodosur.cl
-    use_backend zabbix_backend if host_zabbix
+frontend https_nodosur
+    bind *:80
+    bind *:443 ssl crt /etc/haproxy/certs/nodosur.pem
+    
+    # Detección por Subdominio o Ruta
+    acl is_zabbix   hdr(host) -i zabbix.nodosur.cl zabbix.tas13.local
+    acl is_grafana  hdr(host) -i grafana.nodosur.cl grafana.tas13.local
+    acl is_zabbix_path  path_beg /zabbix
+    acl is_grafana_path path_beg /grafana
 
-backend zabbix_backend
+    use_backend backend_zabbix  if is_zabbix || is_zabbix_path
+    use_backend backend_grafana if is_grafana || is_grafana_path
+    default_backend cluster_wordpress
+
+backend backend_zabbix
     mode http
     balance roundrobin
     option httpchk GET /zabbix/
-    server srv_zabbix 10.33.199.110:80 check inter 4000 rise 2 fall 3
+    http-check expect rstatus (2|3)[0-9][0-9]
+    server vm-zabbix 10.33.199.109:80 check inter 4s fall 3 rise 2
+
+backend backend_grafana
+    mode http
+    balance roundrobin
+    option httpchk GET /api/health
+    http-check expect status 200
+    server vm-grafana 10.33.199.109:3000 check inter 4s fall 3 rise 2
 ```
-Recargar HAProxy: `sudo systemctl reload haproxy`.
+Validar y recargar: `sudo haproxy -c -f /etc/haproxy/haproxy.cfg && sudo systemctl reload haproxy`.
 
 ---
 
-## 5. Script Automatizado para Zabbix Agent 2 en Todas las VMs
+## 6. Integración Grafana con Zabbix (Paso a Paso)
 
-Para monitorear los 5 nodos del proyecto (VM 105 a VM 109), ejecutar el siguiente script en cada una de ellas:
+Una vez que ambos servicios están corriendo en la VM 109:
 
-```bash
-#!/usr/bin/env bash
-# ==============================================================================
-# INSTALADOR AUTOMÁTICO DE ZABBIX AGENT 2 - PROYECTO TAS-G13
-# ==============================================================================
-set -euo pipefail
-
-ZABBIX_SERVER_IP="10.33.199.110"
-CURRENT_HOSTNAME=$(hostname)
-
-echo "=== Configurando Zabbix Agent 2 en ${CURRENT_HOSTNAME} ==="
-
-# 1. Instalar repositorio oficial de Zabbix 7.0 LTS
-if [ ! -f "/etc/apt/sources.list.d/zabbix.list" ]; then
-    wget -q https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu24.04_all.deb -O /tmp/zabbix-release.deb
-    sudo dpkg -i /tmp/zabbix-release.deb
-    rm /tmp/zabbix-release.deb
-    sudo apt update
-fi
-
-# 2. Instalar el paquete de Zabbix Agent 2
-sudo apt install -y zabbix-agent2
-
-# 3. Configurar archivo /etc/zabbix/zabbix_agent2.conf
-sudo sed -i "s/^Server=127.0.0.1/Server=127.0.0.1,${ZABBIX_SERVER_IP}/" /etc/zabbix/zabbix_agent2.conf
-sudo sed -i "s/^ServerActive=127.0.0.1/ServerActive=${ZABBIX_SERVER_IP}/" /etc/zabbix/zabbix_agent2.conf
-sudo sed -i "s/^Hostname=Zabbix server/Hostname=${CURRENT_HOSTNAME}/" /etc/zabbix/zabbix_agent2.conf
-
-# 4. Ajustar Firewall UFW si está activo
-if command -v ufw >/dev/null 2>&1; then
-    sudo ufw allow from 10.33.199.104/29 to any port 10050 proto tcp comment "Zabbix Agent LAN" || true
-fi
-
-# 5. Reiniciar y verificar servicio
-sudo systemctl restart zabbix-agent2
-sudo systemctl enable zabbix-agent2
-
-echo "✔ Zabbix Agent 2 configurado exitosamente enlazado al Server: ${ZABBIX_SERVER_IP}"
-```
+1. **Acceder a Grafana:**
+   * URL: `https://grafana.nodosur.cl` (o `http://10.33.199.109:3000`)
+   * Usuario: `admin` | Contraseña: `AdminTas13!` (definida en el script).
+2. **Habilitar el Plugin de Zabbix:**
+   * Ir a **Administration** ➔ **Plugins and data** ➔ **Plugins**.
+   * Buscar **Zabbix** (de Alexander Zobnin).
+   * Clic en **Enable**.
+3. **Añadir Zabbix como Data Source:**
+   * Ir a **Connections** ➔ **Data sources** ➔ **Add data source**.
+   * Seleccionar **Zabbix**.
+   * **HTTP settings:**
+     * URL: `http://localhost/zabbix/api_jsonrpc.php`
+   * **Zabbix API Details:**
+     * Username: `Admin`
+     * Password: `zabbix` (o la contraseña actualizada de Zabbix).
+   * Clic en **Save & test**. Aparecerá un mensaje verde de confirmación: *"API version: 7.0.x"*.
 
 ---
 
-## 6. Métricas y Plantillas por Cada Nodo
+## 7. Construcción de Paneles Clave en Grafana (Rúbrica Entrega 4)
 
-Al registrar cada máquina en la interfaz web de Zabbix, asociar las siguientes plantillas oficiales preconfiguradas:
+Con el Data Source conectado, se crean tableros con las señales requeridas por la rúbrica:
 
-| Nodo | IP | Plantillas Zabbix (Templates) | Métricas Específicas a Supervisar |
+### Panel 1: Salud de Infraestructura y Clúster Web
+* **Métrica:** `system.cpu.util` y `vm.memory.util` en hosts `web1.tas13.local` y `web2.tas13.local`.
+* **Tipo:** Time series con umbrales en amarillo (75%) y rojo (90%).
+* **Concurrencia HTTP:** Tráfico por nodo backend reportado por HAProxy (`haproxy[web1,current_sessions]` vs `haproxy[web2,current_sessions]`).
+
+### Panel 2: Rendimiento y Saturación de Base de Datos (VM 108)
+* **InnoDB Buffer Pool Hit Ratio:** Métrica `mysql.buffer_pool_reads` vs `mysql.buffer_pool_read_requests` (debe mantenerse > 99%).
+* **Consultas por Segundo (QPS):** `mysql.queries.rate`.
+* **Consultas Lentas:** `mysql.slow_queries`.
+
+### Panel 3: Continuidad Operacional y Bóveda de Respaldos (VM 109)
+* **Espacio Libre en Disco:** `vfs.fs.size[/var/backups/tas13,pfree]` y `vfs.fs.size[/srv/nfs,pfree]`.
+* **Disponibilidad de Nodos (ICMP Ping / Agent Ping):** Panel tipo *Stat* o *Status dot* mostrando las 5 VMs en verde.
+
+---
+
+## 8. Protocolo de Pruebas de Degradación y Alertas en Vivo (Para Defensa)
+
+Para la evaluación presencial con el docente, la rúbrica exige demostrar:
+> *"Provocar una degradación controlada y detectar el incidente mediante la plataforma de observabilidad."*
+
+### Escenario 1: Simulación de Caída de un Nodo Web (Web 1)
+1. En Proxmox o por SSH en **VM 106**, detener el servicio Apache:
+   ```bash
+   sudo systemctl stop apache2
+   ```
+2. **Evidencias Inmediatas:**
+   * **En HAProxy:** El health check L7 marca `vm-web1` en estado **DOWN** en menos de 9 segundos.
+   * **En Zabbix:** El trigger `Apache service is down on web1.tas13.local` pasa a estado **PROBLEM (High)**.
+   * **En Grafana:** El panel de tráfico muestra la redirección del 100% de las peticiones a `web2.tas13.local` sin interrupción del servicio WordPress para los usuarios.
+3. **Recuperación:**
+   ```bash
+   sudo systemctl start apache2
+   ```
+   El trigger en Zabbix pasa automáticamente a **RESOLVED**.
+
+### Escenario 2: Simulación de Saturación de CPU/Tráfico
+1. Desde el Gateway o un equipo cliente, simular concurrencia con ApacheBench:
+   ```bash
+   ab -n 5000 -c 50 https://nodosur.cl/
+   ```
+2. Observar en vivo en Grafana el aumento de conexiones simultáneas y la efectividad de la micro-caché de HAProxy mitigando el impacto en los nodos web.
+
+---
+
+## 9. Resumen de Credenciales y Puertos de Gestión
+
+| Servicio | URL / Endpoint | Usuario | Contraseña por Defecto |
 | :--- | :--- | :--- | :--- |
-| **VM 105 (Gateway / DNS)** | `10.33.199.105` | 1. `Linux by Zabbix agent`<br>2. `HAProxy by HTTP`<br>3. `BIND 9 by HTTP / SNMP` | - Tasa de paquetes y ancho de banda WAN/LAN.<br>- Conexiones simultáneas y salud UP/DOWN de los nodos web.<br>- Latencia de resolución DNS y consultas por segundo. |
-| **VM 106 (Web 1)** | `10.33.199.106` | 1. `Linux by Zabbix agent`<br>2. `Apache by HTTP`<br>3. `PHP-FPM by HTTP` | - Tasa de solicitudes HTTP/sec y workers ocupados (`mod_status`).<br>- Tiempos de respuesta del blog WordPress.<br>- Estado del montaje NFS `/var/www/html`. |
-| **VM 107 (Web 2)** | `10.33.199.107` | 1. `Linux by Zabbix agent`<br>2. `Apache by HTTP`<br>3. `PHP-FPM by HTTP` | - Comparativa de balanceo con Web 1.<br>- Consumo de memoria RAM por hilos de Apache y OPcache. |
-| **VM 108 (MariaDB)** | `10.33.199.108` | 1. `Linux by Zabbix agent`<br>2. `MySQL by Zabbix agent 2` | - Hit ratio del InnoDB Buffer Pool (debe ser > 95%).<br>- Conexiones activas (`Threads_connected` vs `max_connections`).<br>- Consultas lentas (*Slow queries*) y espacio en `/var/lib/mysql`. |
-| **VM 109 (Backup & Storage)** | `10.33.199.109` | 1. `Linux by Zabbix agent`<br>2. Plantilla personalizada de disco | - Ocupación de almacenamiento en `/srv/backups` y `/srv/nfs`.<br>- Rendimiento de lectura/escritura (I/O Wait) durante el cron.<br>- Estado de salida del script `restore_seguro.sh` y `backup_seguro.sh`. |
-
----
-
-## 7. Configuración de Triggers y Alertas Críticas
-
-En **Alerts** ➔ **Actions** o en la sección de Triggers por Host, configurar alertas clave para el proyecto:
-
-1. **Caída de Nodo Web:**
-   * Condición: `HAProxy: Backend web_cluster member web1.tas13.local is DOWN`
-   * Severidad: **High**
-2. **Caída del Servicio MariaDB:**
-   * Condición: `MySQL: Service is down or not responding`
-   * Severidad: **Disaster**
-3. **Saturación de Espacio en Respaldos (VM 109):**
-   * Condición: `vfs.fs.size[/srv/backups,pfree] < 15` (menos del 15% libre)
-   * Severidad: **Warning**
-4. **Falla en Montaje NFS:**
-   * Condición: Comprobación de existencia de `/var/www/html/wp-config.php` en Web 1 / Web 2.
-   * Severidad: **High**
-
----
-
-## 8. Manual de Uso del Panel Web Zabbix
-
-1. **Acceso Web:**
-   * URL Directa: `http://10.33.199.110/zabbix`
-   * URL con Dominio: `https://zabbix.nodosur.cl/zabbix`
-   * **Usuario inicial:** `Admin` (Sensible a mayúsculas)
-   * **Contraseña inicial:** `zabbix`
-   *(Cambiar la contraseña inmediatamente en User Settings).*
-
-2. **Dar de Alta un Host (VM):**
-   * Navegar a **Data collection** ➔ **Hosts** ➔ Botón **Create host**.
-   * `Host name`: Escribir el FQDN exacto (ej. `web1.tas13.local`).
-   * `Templates`: Buscar y seleccionar `Linux by Zabbix agent`.
-   * `Host groups`: Seleccionar o crear `TAS-G13 Servers`.
-   * `Interfaces`: Clic en **Add** ➔ **Agent** ➔ IP: `10.33.199.106`, Puerto: `10050`.
-   * Clic en **Add**.
-
-3. **Verificación de Conectividad:**
-   * En la tabla de Hosts, la etiqueta **ZBX** debe encenderse en **verde**.
-   * Si queda en gris o rojo, verificar conectividad con `zabbix_get`:
-     ```bash
-     zabbix_get -s 10.33.199.106 -k agent.ping
-     # Si responde "1", la comunicación es correcta.
-     ```
-
-4. **Diseño de Mapas de Red (Topología en Vivo):**
-   * Ir a **Monitoring** ➔ **Maps** ➔ **Create map**.
-   * Dibujar los nodos: VM 105 (GW) enlazada a VM 106, 107, 108 y 109.
-   * Si cualquiera de los servicios falla, el icono de la máquina virtual o el enlace cambiará a color rojo y parpadeará en tiempo real en la pantalla.
-
----
-
-## 9. Comandos Útiles de Diagnóstico
-
-* Ver logs del servidor:
-  ```bash
-  sudo tail -f /var/log/zabbix/zabbix_server.log
-  ```
-* Ver logs del agente en cualquier VM:
-  ```bash
-  sudo tail -f /var/log/zabbix/zabbix_agent2.log
-  ```
-* Comprobar puertos de escucha:
-  ```bash
-  # En el servidor (debe escuchar en 10051)
-  ss -tulpn | grep 10051
-  # En los agentes (debe escuchar en 10050)
-  ss -tulpn | grep 10050
-  ```
+| **Zabbix Web UI** | `https://zabbix.nodosur.cl/zabbix`<br>`http://10.33.199.109/zabbix` | `Admin` | `zabbix` |
+| **Grafana OSS** | `https://grafana.nodosur.cl`<br>`http://10.33.199.109:3000` | `admin` | `AdminTas13!` |
+| **HAProxy Live Stats** | `http://10.30.248.9:8404/stats` | `admin` | `tas13pass` |
+| **Zabbix Server Daemon** | `10.33.199.109:10051` | Interno | - |
+| **Zabbix Agents (VM 105-109)** | `Port 10050/TCP` | Interno | - |

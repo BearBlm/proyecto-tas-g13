@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # IP del Servidor Zabbix en la subred privada /29
-ZABBIX_SERVER_IP="${1:-10.33.199.110}"
+ZABBIX_SERVER_IP="${1:-10.33.199.109}"
 CURRENT_HOSTNAME=$(hostname)
 
 echo "======================================================================"

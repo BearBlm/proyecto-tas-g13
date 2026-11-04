@@ -1,4 +1,4 @@
-# INFORME TÉCNICO DE PROYECTO
+﻿# INFORME TÉCNICO DE PROYECTO
 ## Infraestructura Web de Alta Disponibilidad, Balanceo de Carga, Almacenamiento NFS y DNS
 **Proyecto:** Plataforma Web NodoSur (`www.nodosur.cl` / `tas13.local`)  
 **Asignatura:** Taller de Administración de Sistemas (TAS) - Grupo 13  
@@ -595,12 +595,79 @@ Siguiendo la metodología estricta del curso **"Observar $\rightarrow$ Probar $\
 
 ---
 
-## 11. Anexo: Monitoreo Centralizado de la Infraestructura con Zabbix 7.0 LTS
+## 11. Observabilidad y Continuidad Operacional: Zabbix 7.0 LTS + Grafana OSS (Entrega 4)
 
-Para ampliar la observabilidad de la plataforma más allá del panel de estadísticas integrado de HAProxy (`:8404/stats`), se ha documentado e integrado la arquitectura completa de monitoreo distribuido mediante **Zabbix 7.0 LTS**.
+Para cumplir con la totalidad de los requerimientos de la **Entrega 4 (Observabilidad y Continuidad Operacional)** bajo la restricción estricta de **exactamente 5 Máquinas Virtuales**, se consolidó una arquitectura de monitoreo de grado empresarial integrando **Zabbix 7.0 LTS** como motor de telemetría y alertas, y **Grafana OSS** como panel interactivo de observabilidad.
 
-* **Documento Técnico Completo:** Consulte [GUIA_ZABBIX_MONITOREO.md](file:///c:/Users/axelc/OneDrive/Documentos/projectç/proyecto-tas-g13/GUIA_ZABBIX_MONITOREO.md) para acceder al manual de despliegue paso a paso, configuración de `Zabbix Agent 2`, plantillas recomendadas por nodo y manual de operación web.
-* **Resumen de Integración:**
-  * **Nodo Servidor:** Despliegue en la IP de reserva `10.33.199.110` (o coinquilino en VM de almacenamiento) con Zabbix Server, Apache2 Web y MariaDB dedicado.
-  * **Acceso Externo:** Enrutamiento a través del Gateway HAProxy mediante el subdominio `https://zabbix.nodosur.cl/zabbix`.
-  * **Agentes en Nodos:** Despliegue de `zabbix-agent2` en VM 105 (Gateway/DNS), VM 106 & 107 (Nodos Web), VM 108 (MariaDB) y VM 109 (Storage & Backup).
+* **Guía de Despliegue Rápido y Paso a Paso:** Consulte [GUIA_ZABBIX_MONITOREO.md](file:///C:/Users/axelc/OneDrive/Documentos/project/proyecto-tas-g13/GUIA_ZABBIX_MONITOREO.md) para ejecutar la instalación automatizada y consultar los scripts.
+
+---
+
+### 11.1. Arquitectura Consolidada en 5 Máquinas Virtuales
+
+La distribución de responsabilidades dentro del tope de 5 VMs garantiza aislamiento de fallos, seguridad y máximo rendimiento:
+
+1. **VM 1 (Gateway / HAProxy / BIND9 / Router NAT):**
+   * **Enrutamiento L7:** Terminación SSL/TLS para `https://nodosur.cl` (WordPress), `https://zabbix.nodosur.cl/zabbix` (Zabbix) y `https://grafana.nodosur.cl` (Grafana).
+   * **Telemetría:** `zabbix-agent2` supervisa estado de interfaces de red, ancho de banda WAN/LAN, tasa de conexiones y salud de los backends mediante la plantilla `HAProxy by HTTP`.
+2. **VM 2 y VM 3 (Nodos Web 1 y Web 2):**
+   * `zabbix-agent2` supervisa la disponibilidad de Apache 2.4, workers ocupados, tiempos de respuesta HTTP de WordPress y el estado del montaje NFS compartido.
+3. **VM 4 (Base de Datos MariaDB 10.11 Dedicada):**
+   * **Aislamiento Total:** La base de datos de producción (`nodosur_db`) no aloja datos de monitoreo para evitar saturación de I/O o concurrencia.
+   * `zabbix-agent2` con plugin nativo MySQL supervisa consultas por segundo (QPS), consultas lentas (*slow queries*), hilos conectados y el *InnoDB Buffer Pool Hit Ratio* (> 99%).
+4. **VM 5 (Nodo de Almacenamiento, Respaldos y Observabilidad Central):**
+   * **Almacenamiento y Continuidad:** Servidor NFS Kernel (`/srv/nfs/wordpress`) y bóveda cifrada de respaldos automáticos Pull (`/var/backups/tas13`).
+   * **Motor de Monitoreo (Zabbix Server 7.0 LTS):** Demonio central (`:10051`) que recibe y sondea métricas de los 5 agentes.
+   * **Base de Datos de Monitoreo:** MariaDB local en `127.0.0.1` exclusiva para Zabbix. Si la BD de producción en VM 4 colapsa, Zabbix sigue 100% operativo y emite la alerta crítica de inmediato.
+   * **Panel Ejecutivo (Grafana OSS):** Servidor Grafana (`:3000`) conectado vía API local a Zabbix con el plugin oficial `alexanderzobnin-zabbix-app`.
+
+---
+
+### 11.2. ¿Cómo se Implementa Grafana con Zabbix?
+
+Grafana se integra directamente con Zabbix como backend de datos utilizando el plugin verificado **Zabbix Plugin for Grafana** (`alexanderzobnin-zabbix-app`):
+* **Flujo de Datos:**
+  ```text
+  [ 5 VMs con Zabbix Agent 2 ] ──(Puerto 10051)──► [ Zabbix Server 7.0 ]
+                                                           │
+                                                           ▼ (Almacena en MariaDB local)
+                                                    [ Zabbix Web API ]
+                                                (http://localhost/zabbix/api_jsonrpc.php)
+                                                           │
+                                                           ▼
+                                                 [ Grafana OSS (3000) ]
+                                              (Plugin alexanderzobnin-zabbix-app)
+                                                           │
+                                                           ▼ (Reverse Proxy HTTPS)
+                                                [ HAProxy Gateway (VM 1) ]
+                                                           │
+                                                           ▼
+                                                [ Administrador / Docente ]
+  ```
+* **Ventajas Técnicas:**
+  1. No requiere desplegar múltiples exporters de Prometheus pesados en cada VM ni duplicar consumo de RAM.
+  2. Zabbix se encarga de la recolección periódica, umbrales y alarmas.
+  3. Grafana consume directamente la API JSON-RPC de Zabbix para renderizar tableros estéticos, histogramas y estados de salud.
+
+---
+
+### 11.3. Matriz de Alertas y Triggers Críticos (Rúbrica Entrega 4)
+
+| Incidente / Evento | Condición de Alarma Zabbix | Nivel de Severidad | Acción Automática / Responsable |
+| :--- | :--- | :---: | :--- |
+| **Caída de Nodo Web 1 o 2** | `HAProxy: Backend member [webX] is DOWN` | **High** | HAProxy desvía tráfico al nodo superviviente. Alerta inmediata en Dashboard. |
+| **Caída de MariaDB Producción** | `MySQL: Service is down or port 3306 unreachable` | **Disaster** | Alerta crítica de máxima prioridad. Runbook: reinicio de servicio o failover. |
+| **Saturación de Espacio en Respaldos** | `vfs.fs.size[/var/backups/tas13,pfree] < 15%` | **Warning** | Purga de respaldos según política de retención (conservar últimos 7 días). |
+| **Falla de Montaje NFS en Nodos Web** | `vfs.file.exists[/srv/nfs/wordpress/wp-config.php] = 0` | **High** | Reintento automático de montaje NFS mediante autofs o script de contingencia. |
+| **Sobrecarga de Tráfico / Posible DoS** | `HAProxy: Frontend http_req_rate > 500 req/10s` | **Warning** | Activación de mitigación en stick-table de HAProxy. |
+
+---
+
+### 11.4. Resumen de Credenciales y URLs de Acceso
+
+| Servicio | URL Pública / Intranet | Usuario | Contraseña |
+| :--- | :--- | :---: | :---: |
+| **Zabbix Web UI** | `https://zabbix.nodosur.cl/zabbix` | `Admin` | `zabbix` (cambiar al 1er inicio) |
+| **Grafana OSS** | `https://grafana.nodosur.cl` | `admin` | `AdminTas13!` |
+| **HAProxy Live Stats** | `http://10.33.195.195:8404/stats` | `admin` | `tas13pass` |
+| **API Interna Zabbix** | `http://localhost/zabbix/api_jsonrpc.php` | `Admin` | Credencial configurada en Data Source |
