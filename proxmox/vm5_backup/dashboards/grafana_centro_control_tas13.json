@@ -1,0 +1,2400 @@
+{
+  "editable": true,
+  "id": 3873199585234944,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "content": "\n<div style=\"display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#0f172a 0%,#1e293b 60%,#0f172a 100%);border:1px solid #334155;border-left:5px solid #10b981;border-radius:8px;padding:12px 20px;color:#f8fafc;font-family:Inter,system-ui,sans-serif;\">\n  <div>\n    <div style=\"font-size:18px;font-weight:700;letter-spacing:0.3px;\">Plataforma Digital Resiliente NodoSur — Grupo 13 (UTFSM · TAS)</div>\n    <div style=\"font-size:12.5px;color:#94a3b8;margin-top:4px;\">\n      <b>WAN Entrada:</b> <code>10.33.195.195</code> (HAProxy L7 TLS + BIND9) &nbsp;|&nbsp;\n      <b>Subred Clúster:</b> <code>10.33.199.104/29</code> (Web1 <code>.106</code> · Web2 <code>.107</code> · MariaDB <code>.108</code> · Storage/Vault/Zabbix <code>.110</code>)\n    </div>\n  </div>\n  <div style=\"display:flex;gap:10px;font-size:12px;\">\n    <a href=\"/d/tas13-db-incident\" style=\"background:#1d4ed8;color:#fff;padding:7px 13px;border-radius:6px;text-decoration:none;font-weight:600;\">Vista Diagnóstico DB & Incidente</a>\n    <a href=\"https://www.nodosur.cl/stats\" target=\"_blank\" style=\"background:#334155;color:#e2e8f0;padding:7px 13px;border-radius:6px;text-decoration:none;font-weight:600;\">Panel HAProxy /stats</a>\n    <a href=\"https://www.nodosur.cl/zabbix/\" target=\"_blank\" style=\"background:#334155;color:#e2e8f0;padding:7px 13px;border-radius:6px;text-decoration:none;font-weight:600;\">Consola Zabbix</a>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "CAÍDO"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "ACTIVO"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "TAS13: Servicio DNS BIND9 (:53)"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "DNS BIND9 (:53)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "CAÍDO"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "ACTIVO"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 3,
+        "y": 3
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "TAS13: Servicio HTTPS Gateway (:443)"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway HTTPS (:443)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "0 / 2 CAÍDO"
+                },
+                "1": {
+                  "color": "dark-orange",
+                  "index": 1,
+                  "text": "1 / 2 FAILOVER"
+                },
+                "2": {
+                  "color": "dark-green",
+                  "index": 2,
+                  "text": "2 / 2 ONLINE"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-orange",
+                "value": 1
+              },
+              {
+                "color": "dark-green",
+                "value": 2
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 6,
+        "y": 3
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "Backend cluster_wordpress: Number of active servers"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Clúster Web HAProxy",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "UP (L7OK)"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 9,
+        "y": 3
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "cluster_wordpress vm206-web1: Server is active"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Nodo Web 1 (.106)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "UP (L7OK)"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 12,
+        "y": 3
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "cluster_wordpress vm248-web2: Server is active"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Nodo Web 2 (.107)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "FALLA DB"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "ONLINE"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 15,
+        "y": 3
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Status"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "MariaDB Prod (.108)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "CAÍDO"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "ACTIVO"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 18,
+        "y": 3
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "TAS13: Estado Servidor NFS (:2049)"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Servidor NFS (:2049)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "CORRUPTO"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "ÍNTEGRO"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "noValue": "SIN DATOS",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 21,
+        "y": 3
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "background_solid",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "TAS13: Integridad SHA-256 Último Respaldo"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Bóveda SHA-256",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 6
+      },
+      "id": 10,
+      "options": {
+        "ageField": true,
+        "descriptionAtNewLine": false,
+        "fontSize": "100%",
+        "hostField": true,
+        "layout": "table",
+        "severityField": true,
+        "statusField": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "/.*/"
+          },
+          "options": {
+            "acknowledged": 2,
+            "minSeverity": 0,
+            "sortProblems": "lastchange"
+          },
+          "problem": {
+            "filter": ""
+          },
+          "queryType": "3",
+          "refId": "A"
+        }
+      ],
+      "title": "Alertas e Incidentes Activos en Tiempo Real (Zabbix)",
+      "type": "alexanderzobnin-zabbix-triggers-panel"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 18,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Web 1 (vm206-web1 • .106)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#10b981",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Web 2 (vm248-web2 • .107)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#38bdf8",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 6
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "Web 1 (vm206-web1 • .106)"
+              ],
+              "text": "setAlias(Web 1 (vm206-web1 • .106))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "cluster_wordpress vm206-web1: Responses time"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "Web 2 (vm248-web2 • .107)"
+              ],
+              "text": "setAlias(Web 2 (vm248-web2 • .107))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "cluster_wordpress vm248-web2: Responses time"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        }
+      ],
+      "title": "HAProxy L7 • Tiempo de Respuesta Backends (Web 1 vs Web 2)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 20,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 2xx (OK)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#10b981",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 4xx (Cliente/Bloqueo)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#f59e0b",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 5xx (Falla Backend/DB)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ef4444",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 6
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "HTTP 2xx (OK)"
+              ],
+              "text": "setAlias(HTTP 2xx (OK))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "Backend cluster_wordpress: Number of responses with codes 2xx per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "HTTP 4xx (Cliente/Bloqueo)"
+              ],
+              "text": "setAlias(HTTP 4xx (Cliente/Bloqueo))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "Backend cluster_wordpress: Number of responses with codes 4xx per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "HTTP 5xx (Falla Backend/DB)"
+              ],
+              "text": "setAlias(HTTP 5xx (Falla Backend/DB))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "Backend cluster_wordpress: Number of responses with codes 5xx per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "C"
+        }
+      ],
+      "title": "HAProxy L7 • Respuestas HTTP por Segundo (2xx OK vs 4xx vs 5xx Error)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 10,
+        "x": 0,
+        "y": 13
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "Total Queries/s"
+              ],
+              "text": "setAlias(Total Queries/s)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Queries per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "SELECT/s"
+              ],
+              "text": "setAlias(SELECT/s)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Command Select per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "UPDATE/s"
+              ],
+              "text": "setAlias(UPDATE/s)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Command Update per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "INSERT/s"
+              ],
+              "text": "setAlias(INSERT/s)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Command Insert per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "DELETE/s"
+              ],
+              "text": "setAlias(DELETE/s)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Command Delete per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "E"
+        }
+      ],
+      "title": "MariaDB Producción (.108) • Operaciones SQL por Segundo (QPS)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 85
+              },
+              {
+                "color": "green",
+                "value": 95
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 10,
+        "y": 13
+      },
+      "id": 14,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Buffer pool efficiency"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "InnoDB Buffer Pool Efficiency",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "light-blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 14,
+        "y": 13
+      },
+      "id": 15,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Threads connected"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Hilos SQL Conectados",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 4,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 14,
+        "y": 16
+      },
+      "id": 16,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "TAS13: Latencia TCP MariaDB (:3306)"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Latencia TCP :3306",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 17,
+        "y": 13
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "TAS13: Cantidad de Respaldos en Bóveda"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Copias en Bóveda (.110)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "teal",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 13
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "TAS13: Tamaño Último Respaldo BD (SQL.gz)"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Último Dump SQL.gz",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 7,
+        "x": 17,
+        "y": 16
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "TAS13: Tamaño Último Respaldo Archivos (TAR.gz)"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        }
+      ],
+      "title": "Último Tarball Archivos WP",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 12,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "min": 0,
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 10,
+        "x": 0,
+        "y": 20
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM1 Gateway (.109)"
+              ],
+              "text": "setAlias(VM1 Gateway (.109))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "CPU utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM2 Web 1 (.106)"
+              ],
+              "text": "setAlias(VM2 Web 1 (.106))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 106 - Web 1 Apache WP"
+          },
+          "item": {
+            "filter": "CPU utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM3 Web 2 (.107)"
+              ],
+              "text": "setAlias(VM3 Web 2 (.107))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 107 - Web 2 Apache WP"
+          },
+          "item": {
+            "filter": "CPU utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM4 MariaDB (.108)"
+              ],
+              "text": "setAlias(VM4 MariaDB (.108))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "CPU utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM5 Storage/Zabbix (.110)"
+              ],
+              "text": "setAlias(VM5 Storage/Zabbix (.110))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "CPU utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "E"
+        }
+      ],
+      "title": "Infraestructura Proxmox • Uso de CPU (%) en las 5 Máquinas Virtuales",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 10,
+        "y": 20
+      },
+      "id": 21,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM1 Gateway (.109)"
+              ],
+              "text": "setAlias(VM1 Gateway (.109))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "Memory utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM2 Web 1 (.106)"
+              ],
+              "text": "setAlias(VM2 Web 1 (.106))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 106 - Web 1 Apache WP"
+          },
+          "item": {
+            "filter": "Memory utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM3 Web 2 (.107)"
+              ],
+              "text": "setAlias(VM3 Web 2 (.107))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 107 - Web 2 Apache WP"
+          },
+          "item": {
+            "filter": "Memory utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM4 MariaDB (.108)"
+              ],
+              "text": "setAlias(VM4 MariaDB (.108))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Memory utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM5 Storage/Obs (.110)"
+              ],
+              "text": "setAlias(VM5 Storage/Obs (.110))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "Memory utilization"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "E"
+        }
+      ],
+      "title": "Uso de Memoria RAM (%) — 5 VMs",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 1,
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 17,
+        "y": 20
+      },
+      "id": 22,
+      "options": {
+        "displayMode": "gradient",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "valueMode": "color"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM1 Gateway (/)"
+              ],
+              "text": "setAlias(VM1 Gateway (/))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "FS [/]: Space: Used, in %"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM2 Web 1 (/)"
+              ],
+              "text": "setAlias(VM2 Web 1 (/))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 106 - Web 1 Apache WP"
+          },
+          "item": {
+            "filter": "FS [/]: Space: Used, in %"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM3 Web 2 (/)"
+              ],
+              "text": "setAlias(VM3 Web 2 (/))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 107 - Web 2 Apache WP"
+          },
+          "item": {
+            "filter": "FS [/]: Space: Used, in %"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM4 MariaDB (/)"
+              ],
+              "text": "setAlias(VM4 MariaDB (/))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "FS [/]: Space: Used, in %"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "VM5 Storage/Bóveda (/)"
+              ],
+              "text": "setAlias(VM5 Storage/Bóveda (/))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "FS [/]: Space: Used, in %"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "E"
+        }
+      ],
+      "title": "Uso de Disco Raíz / (%) — 5 VMs",
+      "type": "bargauge"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "tas-g13",
+    "nodosur",
+    "produccion",
+    "zabbix"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "NodoSur TAS-G13 — Centro de Control & Alta Disponibilidad",
+  "uid": "tas13-exec-home",
+  "version": 1
+}

@@ -1,0 +1,535 @@
+{
+  "editable": true,
+  "id": 3873199908196352,
+  "panels": [
+    {
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "content": "\n<div style=\"display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#1e1b4b 0%,#0f172a 100%);border:1px solid #334155;border-left:5px solid #3b82f6;border-radius:8px;padding:12px 20px;color:#f8fafc;font-family:Inter,system-ui,sans-serif;\">\n  <div>\n    <div style=\"font-size:18px;font-weight:700;\">Vista Especial para Demostración en Vivo (Etapas 3, 4 y 5) — Incidente MariaDB & Recuperación</div>\n    <div style=\"font-size:12.5px;color:#94a3b8;margin-top:4px;\">\n      Muestra con marcas de tiempo exactas la caída controlada de <code>vm258-db-backup</code> (<code>10.33.199.108:3306</code>), el impacto HTTP 500 en HAProxy y los registros vivos de <code>nodosur_db</code>.\n    </div>\n  </div>\n  <div>\n    <a href=\"/d/tas13-exec-home\" style=\"background:#10b981;color:#052e16;padding:7px 14px;border-radius:6px;text-decoration:none;font-weight:700;font-size:12px;\">← Volver al Centro de Control</a>\n  </div>\n</div>",
+        "mode": "html"
+      },
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "CAÍDO / INCIDENTE"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "OPERATIVO (OK)"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "hidden"
+        },
+        "mergeValues": true,
+        "rowHeight": 0.85,
+        "showValue": "always"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "1. Motor MariaDB (mysql.ping)"
+              ],
+              "text": "setAlias(1. Motor MariaDB (mysql.ping))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Status"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "2. Socket TCP 10.33.199.108:3306"
+              ],
+              "text": "setAlias(2. Socket TCP 10.33.199.108:3306)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "TAS13: Puerto TCP MariaDB (:3306)"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "3. Health Check L7 Nodo Web 1"
+              ],
+              "text": "setAlias(3. Health Check L7 Nodo Web 1)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "cluster_wordpress vm206-web1: Server is active"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "4. Health Check L7 Nodo Web 2"
+              ],
+              "text": "setAlias(4. Health Check L7 Nodo Web 2)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "cluster_wordpress vm248-web2: Server is active"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "5. Integridad Bóveda SHA-256"
+              ],
+              "text": "setAlias(5. Integridad Bóveda SHA-256)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 110 - Storage NFS & Observabilidad"
+          },
+          "item": {
+            "filter": "TAS13: Integridad SHA-256 Último Respaldo"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "E"
+        }
+      ],
+      "title": "Línea de Tiempo de Disponibilidad (Evidencia Visual de Caída y Recuperación con Marcas de Tiempo)",
+      "type": "state-timeline"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 25,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 2xx OK"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#10b981",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 5xx Error (Incidente DB)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#ef4444",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 9
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "HTTP 2xx OK"
+              ],
+              "text": "setAlias(HTTP 2xx OK)"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "Backend cluster_wordpress: Number of responses with codes 2xx per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "HTTP 5xx Error (Incidente DB)"
+              ],
+              "text": "setAlias(HTTP 5xx Error (Incidente DB))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 105 - Gateway HAProxy DNS"
+          },
+          "item": {
+            "filter": "Backend cluster_wordpress: Number of responses with codes 5xx per second"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        }
+      ],
+      "title": "Impacto en Clientes • Respuestas HTTP 2xx OK vs HTTP 5xx Error en HAProxy",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "alexanderzobnin-zabbix-datasource",
+        "uid": "PA67C5EADE9207728"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 18,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "Entrada SQL (LAN ens19)"
+              ],
+              "text": "setAlias(Entrada SQL (LAN ens19))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Interface ens19: Bits received"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "alexanderzobnin-zabbix-datasource",
+            "uid": "PA67C5EADE9207728"
+          },
+          "functions": [
+            {
+              "def": {
+                "category": "Alias",
+                "name": "setAlias"
+              },
+              "params": [
+                "Salida SQL (LAN ens19)"
+              ],
+              "text": "setAlias(Salida SQL (LAN ens19))"
+            }
+          ],
+          "group": {
+            "filter": "TAS-G13: Clúster NodoSur"
+          },
+          "host": {
+            "filter": "VM 108 - MariaDB Produccion"
+          },
+          "item": {
+            "filter": "Interface ens19: Bits sent"
+          },
+          "options": {
+            "disableDataAlignment": false,
+            "showDisabledItems": false
+          },
+          "queryType": "0",
+          "refId": "B"
+        }
+      ],
+      "title": "Tráfico de Red en Servidor MariaDB (10.33.199.108 • Interfaz LAN ens19)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "mysql",
+        "uid": "mariadb-nodosur"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "cellHeight": "md",
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "mysql",
+            "uid": "mariadb-nodosur"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ID, post_title AS `Título / Producto en CMS`, post_type AS `Tipo de Registro`, post_status AS `Estado`, DATE_FORMAT(post_date, '%Y-%m-%d %H:%i:%s') AS `Fecha de Creación` FROM wp_posts WHERE post_status='publish' AND post_type IN ('product','post','page') ORDER BY FIELD(post_type,'product','post','page'), ID DESC LIMIT 15;",
+          "refId": "A"
+        }
+      ],
+      "title": "Registros Reales en Vivo en Base de Datos Productiva (nodosur_db.wp_posts — Productos WooCommerce, Páginas y Entradas)",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "tas-g13",
+    "mariadb",
+    "incidente",
+    "rpo-rto"
+  ],
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "NodoSur TAS-G13 — Diagnóstico Incidente Base de Datos & Catálogo Live",
+  "uid": "tas13-db-incident",
+  "version": 2
+}
