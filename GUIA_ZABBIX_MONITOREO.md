@@ -112,7 +112,7 @@ sudo mysql -e "GRANT REPLICATION CLIENT, PROCESS, SHOW DATABASES, SHOW VIEW ON *
 ```
 Crear `/etc/zabbix/zabbix_agent2.d/plugins.d/mysql.conf`:
 ```ini
-Plugins.Mysql.Sessions.Local.Uri=tcp://localhost:3306
+Plugins.Mysql.Sessions.Local.Uri=tcp://10.33.199.108:3306
 Plugins.Mysql.Sessions.Local.User=zbx_monitor
 Plugins.Mysql.Sessions.Local.Password=ZbxPassDb2026!
 ```
@@ -152,14 +152,14 @@ backend backend_zabbix
     balance roundrobin
     option httpchk GET /zabbix/
     http-check expect rstatus (2|3)[0-9][0-9]
-    server vm-zabbix 10.33.199.109:80 check inter 4s fall 3 rise 2
+    server vm-zabbix 10.33.199.110:80 check inter 4s fall 3 rise 2
 
 backend backend_grafana
     mode http
     balance roundrobin
     option httpchk GET /api/health
     http-check expect status 200
-    server vm-grafana 10.33.199.109:3000 check inter 4s fall 3 rise 2
+    server vm-grafana 10.33.199.110:3000 check inter 4s fall 3 rise 2
 ```
 Validar y recargar: `sudo haproxy -c -f /etc/haproxy/haproxy.cfg && sudo systemctl reload haproxy`.
 
@@ -170,7 +170,7 @@ Validar y recargar: `sudo haproxy -c -f /etc/haproxy/haproxy.cfg && sudo systemc
 Una vez que ambos servicios están corriendo en la VM 109:
 
 1. **Acceder a Grafana:**
-   * URL: `https://grafana.nodosur.cl` (o `http://10.33.199.109:3000`)
+   * URL: `https://grafana.nodosur.cl` (o `http://10.33.199.110:3000`)
    * Usuario: `admin` | Contraseña: `AdminTas13!` (definida en el script).
 2. **Habilitar el Plugin de Zabbix:**
    * Ir a **Administration** ➔ **Plugins and data** ➔ **Plugins**.
@@ -242,7 +242,7 @@ Para la evaluación presencial con el docente, la rúbrica exige demostrar:
 | Servicio | URL / Endpoint | Usuario | Contraseña por Defecto |
 | :--- | :--- | :--- | :--- |
 | **Zabbix Web UI** | `https://zabbix.nodosur.cl/zabbix`<br>`http://10.33.199.109/zabbix` | `Admin` | `zabbix` |
-| **Grafana OSS** | `https://grafana.nodosur.cl`<br>`http://10.33.199.109:3000` | `admin` | `AdminTas13!` |
+| **Grafana OSS** | `https://grafana.nodosur.cl`<br>`http://10.33.199.110:3000` | `admin` | `AdminTas13!` |
 | **HAProxy Live Stats** | `http://10.30.248.9:8404/stats` | `admin` | `tas13pass` |
-| **Zabbix Server Daemon** | `10.33.199.109:10051` | Interno | - |
+| **Zabbix Server Daemon** | `10.33.199.110:10051` | Interno | - |
 | **Zabbix Agents (VM 105-109)** | `Port 10050/TCP` | Interno | - |
