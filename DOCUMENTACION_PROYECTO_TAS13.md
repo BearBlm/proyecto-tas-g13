@@ -671,3 +671,33 @@ Grafana se integra directamente con Zabbix como backend de datos utilizando el p
 | **Grafana OSS** | `https://grafana.nodosur.cl` | `admin` | `AdminTas13!` |
 | **HAProxy Live Stats** | `http://10.33.195.195:8404/stats` | `admin` | `tas13pass` |
 | **API Interna Zabbix** | `http://localhost/zabbix/api_jsonrpc.php` | `Admin` | Credencial configurada en Data Source |
+
+---
+
+## 12. Actualización Final de Producción, Tienda WooCommerce y Defensa en Vivo (Noviembre 2026)
+
+Durante la auditoría integral previa a la defensa final (27 de noviembre de 2026), se verificó el estado operativo de las 5 VMs (`0 servicios caídos`) y se aplicaron mejoras críticas de estabilidad, comercio electrónico y experiencia de usuario en producción:
+
+### 12.1. Correcciones de Infraestructura Web y Balanceo Aplicadas
+1. **Habilitación de `AllowOverride All` en ambos nodos Apache (`vm206-web1` y `vm248-web2`):**
+   * **Problema detectado:** `<Directory /var/www/>` mantenía `AllowOverride None`, ignorando `/var/www/html/.htaccess` y produciendo `404 Not Found` en rutas amigables (`/shop/`, `/tienda/`, `/product/...`, `/cart/`).
+   * **Solución:** Se creó `/etc/apache2/conf-available/wordpress-override.conf` (`AllowOverride All` en `/var/www/html`) y se activó con `a2enconf wordpress-override && apache2ctl graceful` en ambos contenedores.
+2. **Ajuste de HAProxy para WooCommerce y Operaciones Administrativas (`/etc/haproxy/haproxy.cfg` en VM1):**
+   * **Sticky Sessions:** Se activó `cookie SRVID insert indirect nocache` (`cookie web1` / `cookie web2`) en `backend cluster_wordpress`, mitigando conflictos `Stale file handle` sobre NFS (`actimeo=60`) durante cambios de temas o plugins.
+   * **Timeouts ampliados:** Se incrementó `timeout client` y `timeout server` de `30s` a `120s` para soportar operaciones administrativas y de importación en WordPress sin cortes `504`.
+   * **Exclusión de WooCommerce de la Micro-Caché RAM:** Se excluyeron las rutas (`/cart`, `/carrito`, `/checkout`, `/finalizar-compra`, `/my-account`, `/mi-cuenta`, `/wp-json`), parámetros (`add-to-cart`, `remove_item`, `wc-ajax`, `undo_item`) y cookies de sesión (`woocommerce_items_in_cart`, `woocommerce_cart_hash`, `wp_woocommerce_session_`), garantizando que HAProxy no elimine `Set-Cookie` ni cachee el carrito de clientes visitantes.
+
+### 12.2. Configuración Funcional de la Tienda de Ropa (`https://www.nodosur.cl`)
+1. **Desactivación del modo "Próximamente" de WooCommerce:** Se actualizaron `woocommerce_coming_soon = no` y `woocommerce_store_pages_only = no` para que las fichas de producto y `/shop/` muestren las prendas reales en lugar de la pantalla de prelanzamiento.
+2. **Medios de Pago y Despacho (Chile — CLP):**
+   * Habilitados **Pago contra entrega / Retiro en tienda (`cod`)** y **Transferencia Bancaria Directa (`bacs`)**, con compra para invitados (*guest checkout*) y agregado AJAX activo.
+   * Zona de envío **Chile (`CL`)** configurada con **Envío Estándar ($3.990 CLP)** y **Envío Gratis sobre $45.000 CLP**.
+3. **Estética Celeste Minimalista y Funcionalidades de Tienda (`web_wp/nodosur-celeste-minimal.php`):**
+   * Desplegado como *Must-Use Plugin* en `/srv/nfs/wordpress/wp-content/mu-plugins/nodosur-celeste-minimal.php` (sincronizado en ambos nodos vía NFS).
+   * Incluye paleta celeste minimalista (`#F0F9FF` – `#0284C7`), tipografía editorial (`Cormorant Garamond` + `Plus Jakarta Sans`), **botón flotante "Mi Bolsa" + Mini-Carrito deslizable AJAX**, barra de progreso de envío gratis, **selector de tallas (`XS`–`XL`) + Modal Guía de Tallas**, buscador/filtros rápidos en `/shop/` y sellos de confianza.
+4. **Catálogo Actualizado (15 Prendas con Agregado Directo al Carrito):**
+   * Se convirtieron los 4 atuendos `variable` iniciales (`#159`, `#187`, `#189`, `#191`) a `simple` con precios normalizados en CLP para permitir agregado directo al carrito por AJAX desde la portada.
+   * Se añadieron 6 nuevas prendas de la colección celeste minimalista: *Polera Minimalista Celeste Hielo* (`#1128`), *Camisa Lino Brisa Celeste* (`#1129`), *Chaqueta Oversize Nube* (`#1130`), *Pantalón Sastrero Minimalista* (`#1131`), *Sweater Tejido Cielo Suave* (`#1132`) y *Vestido Midi Atelier Celeste* (`#1133`).
+
+### 12.3. Guion de Defensa en Vivo y Validación por Rúbrica
+* El informe completo de auditoría en vivo y el guion paso a paso alineado a las 6 etapas de la rúbrica de defensa (Servicios operativos, Registro A DNS, Observabilidad e incidente controlado en MariaDB, Restauración sobre `nodosur_db_eval`, Validación final y Defensa individual) se encuentran documentados en [INFORME_PRESENTACION_DEMO_TAS13.md](./INFORME_PRESENTACION_DEMO_TAS13.md).
